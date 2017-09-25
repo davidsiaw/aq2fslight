@@ -25,21 +25,29 @@ class State
 {
 	int color;
 	int ms_delay;
+	int pin;
 public:
-	State();
+	State(int pin);
+	virtual ~State();
 	void SetColor(int color);
 };
 
-State::State() : color(0), ms_delay(21)
-{}
+State::State(int pin) : color(0), ms_delay(21), pin(pin)
+{
+	bcm2835_gpio_fsel(pin, BCM2835_GPIO_FSEL_OUTP);
+}
+
+State::~State()
+{
+}
 
 void State::SetColor(int color)
 {
 	while(this->color != color)
 	{
-                bcm2835_gpio_write(PIN17, HIGH);
+                bcm2835_gpio_write(this->pin, HIGH);
                 bcm2835_delay(this->ms_delay);
-                bcm2835_gpio_write(PIN17, LOW);
+                bcm2835_gpio_write(this->pin, LOW);
                 bcm2835_delay(this->ms_delay);
 		this->color = (this->color + 1) % 17;
 	}
@@ -52,18 +60,17 @@ int main()
 		printf("crap.\n");
 		return 1;
 	}
-	bcm2835_gpio_fsel(PIN17, BCM2835_GPIO_FSEL_OUTP);
 
-	State s;
+	State s(PIN17);
 	int i=0;
-	for(i=0;i<5;i++)
+	for(i=0;i<2;i++)
 	{
-		s.SetColor(TEAL);
-		delay(500);
+		s.SetColor(RED);
+		delay(2500);
+	        s.SetColor(TEAL);
+        	delay(2500);
 	        s.SetColor(PURPLE);
-        	delay(500);
-	        s.SetColor(RED);
-        	delay(500);
+        	delay(2500);
 	}
 
 	s.SetColor(OFF);
