@@ -1,90 +1,46 @@
 #include <bcm2835.h>
 #include <stdio.h>
 
-#define PIN17 RPI_GPIO_P1_11
+#include "pin.hpp"
+#include "pi_defines.h"
 
-#define OFF 0
-#define RED 16
-#define GREEN 15
-#define BLUE 14
-#define PINK 13
-#define WHITE 12
-#define YELLOW 11
-#define CLEAR_BLUE 10
-#define TEAL 9
-#define PURPLE 8
-#define ORANGE 7
-#define SAKURA 6
-#define BLUE2 5
-#define LIGHTYELLOW 4
-#define CYAN 3
-#define RED1 2
-#define RED2 1
-
-class State
+enum Girl
 {
-	int color;
-	int ms_delay;
-	int pin;
-public:
-	State(int pin);
-	virtual ~State();
-	void SetColor(int color);
+    None,
+    Chika,
+    Riko,
+    Kanan,
+    Dia,
+    You,
+    Yohane,
+    Maru,
+    Mari,
+    Ruby 
 };
-
-State::State(int pin) : color(0), ms_delay(21), pin(pin)
-{
-	bcm2835_gpio_fsel(pin, BCM2835_GPIO_FSEL_OUTP);
-}
-
-State::~State()
-{
-}
-
-void State::SetColor(int color)
-{
-	while(this->color != color)
-	{
-                bcm2835_gpio_write(this->pin, HIGH);
-                bcm2835_delay(this->ms_delay);
-                bcm2835_gpio_write(this->pin, LOW);
-                bcm2835_delay(this->ms_delay);
-		this->color = (this->color + 1) % 17;
-	}
-}
 
 int main()
 {
-	if (!bcm2835_init())
-	{
-		printf("crap.\n");
-		return 1;
-	}
+    if (!bcm2835_init())
+    {
+        printf("crap.\n");
+        return 1;
+    }
 
-	State s(PIN17);
-	int i=0;
-	for(i=0;i<2;i++)
-	{
-		s.SetColor(RED);
-		delay(2500);
-	        s.SetColor(TEAL);
-        	delay(2500);
-	        s.SetColor(PURPLE);
-        	delay(2500);
-	}
+    Pin a(PIN21, PIN16, PIN12, PIN1, PIN8, PIN24);
 
-	s.SetColor(OFF);
+    int i=0;
+    while(true)
+    {
+        a.SetColor(TEAL, PURPLE, RED1, TEAL, ORANGE, ORANGE);
+        delay(2500);
+        a.SetColor(PURPLE, RED1, TEAL, PURPLE, SAKURA, SAKURA);
+        delay(2500);
+        a.SetColor(RED1, TEAL, PURPLE, RED1, CLEAR_BLUE, CLEAR_BLUE);
+        delay(2500);
+    }
 
+    a.SetColor(OFF, OFF, OFF, OFF, OFF, OFF);
 
-	//bcm2835_gpio_write(PIN17, HIGH);
-	//bcm2835_delay(2000);
-	//bcm2835_gpio_write(PIN17, LOW);
-
-	//bcm2835_delay(25);
-        //bcm2835_gpio_write(PIN17, HIGH);
-        //bcm2835_delay(2000);
-        //bcm2835_gpio_write(PIN17, LOW);
-
-	bcm2835_close();
-	return 0;
+    bcm2835_close();
+    return 0;
 }
